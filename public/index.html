@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Calculator</title>
+
+<style>
+body {
+  font-family: Arial;
+  background: #f4f4f4;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.calculator {
+  background: #222;
+  padding: 20px;
+  border-radius: 10px;
+  width: 260px;
+}
+
+input {
+  width: 100%;
+  height: 50px;
+  font-size: 20px;
+  margin-bottom: 10px;
+  text-align: right;
+  padding: 5px;
+}
+
+.buttons {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+button {
+  height: 50px;
+  font-size: 18px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.operator { background: orange; color: white; }
+.equal { background: green; color: white; grid-column: span 2; }
+.clear { background: red; color: white; }
+</style>
+
+</head>
+<body>
+
+<div class="calculator">
+  <input type="text" id="display" disabled>
+
+  <div class="buttons">
+    <button onclick="clearDisplay()" class="clear">C</button>
+    <button onclick="setOperator('/')">/</button>
+    <button onclick="setOperator('*')">*</button>
+    <button onclick="setOperator('-')">-</button>
+
+    <button onclick="appendNumber('7')">7</button>
+    <button onclick="appendNumber('8')">8</button>
+    <button onclick="appendNumber('9')">9</button>
+    <button onclick="setOperator('+')">+</button>
+
+    <button onclick="appendNumber('4')">4</button>
+    <button onclick="appendNumber('5')">5</button>
+    <button onclick="appendNumber('6')">6</button>
+
+    <button onclick="appendNumber('1')">1</button>
+    <button onclick="appendNumber('2')">2</button>
+    <button onclick="appendNumber('3')">3</button>
+
+    <button onclick="appendNumber('0')">0</button>
+    <button onclick="calculate()" class="equal">=</button>
+  </div>
+</div>
+
+<script>
+let num1 = "";
+let num2 = "";
+let operator = "";
+
+function appendNumber(number) {
+  if (!operator) {
+    num1 += number;
+    document.getElementById("display").value = num1;
+  } else {
+    num2 += number;
+    document.getElementById("display").value = num2;
+  }
+}
+
+function setOperator(op) {
+  operator = op;
+}
+
+function clearDisplay() {
+  num1 = "";
+  num2 = "";
+  operator = "";
+  document.getElementById("display").value = "";
+}
+
+async function calculate() {
+  const response = await fetch("/calculate", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ num1, num2, operator })
+  });
+
+  const data = await response.json();
+  document.getElementById("display").value = data.result;
+
+  // reset for next calculation
+  num1 = data.result.toString();
+  num2 = "";
+  operator = "";
+}
+</script>
+
+</body>
+</html>
